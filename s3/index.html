@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Angujar JS App.</title>
+      <link rel="stylesheet" href="css/main.css"/>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+      <!-- Angular -->
+      <script src="https://code.angularjs.org/snapshot/angular.min.js"></script>
+      <!-- Custom JS -->
+      <script src="js/common.js"></script>
+      <script src="js/createController.js"></script>
+      <script src="js/dataController.js"></script>
+
+      <!-- Utility JS, i.e: using modals -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+
+   <body ng-app="ngAppDemo">
+
+     <table class="topAlign">
+       <tr>
+         <td><h4>Create risk</h4></td>
+         <td><h4>Risk data</h4></td>
+       </tr>
+       <tr>
+         <td class="topAlign">
+           <!-- Create risk HTML -->
+           <div ng-controller="ngAppDemoController">
+             <table class="table table-striped table-hover table-condensed" style="width: 500px;">
+               <tr>
+                 <td style="width: 100px;">
+                   <label for="riskName">Code:</label>
+                 </td>
+                 <td style="width: 100px;">
+                   <input type="text" class="form-control" id="riskName" data-ng-model="risk.code">
+                 </td>
+               </tr>
+               <tr>
+                 <td>
+                   <label for="riskName">Risk Name:</label>
+                 </td>
+                 <td>
+                   <input type="text" class="form-control" id="riskName" data-ng-model="risk.riskName">
+                 </td>
+               </tr>
+               <tr>
+                 <td><button class="btn btn-primary" ng-click="createRisk()"
+                     ng-disabled="risk.code == '' || risk.riskName == '' ">Create risk</button></td>
+                 <td></td>
+               </tr>
+             </table>
+
+             <h4>Fields for risk {{risk.riskName}}</h4>
+             <table class="table table-striped table-hover table-condensed" style="width: 500px;">
+               <tr>
+                 <td style="width: 100px;">
+                   <label for="fieldRiskName">Field Name:</label>
+                 </td>
+                 <td style="width: 200px;">
+                   <input type="text" class="form-control" id="fieldRiskName" data-ng-model="newField.fieldName">
+                 </td>
+               </tr>
+               <tr>
+                 <td>
+                   <label for="riskName"><label for="sel1">Select type:</label></label>
+                 </td>
+                 <td>
+                   <select class="form-control selectpicker" data-ng-model="newField.fieldType">
+                      <option ng-repeat="item in fieldsType">{{item}}</option>
+                   </select>
+                   <div ng-show="newField.fieldType == 'enum'">
+                     <br/>
+                     <label for="optionVal">Option :</label>
+                     <input type="text" class="form-control" id="optionVal" data-ng-model="option">
+                     <br/>
+                     <button class="btn btn-default" ng-click="addOption()">Add option</button>
+                     <br/><br/>
+                     <ul class="list-group">
+                       <li ng-repeat="option in newField.options track by $index" class="list-group-item">
+                         {{option}}
+                       </li>
+                     </ul>
+                   </div>
+                 </td>
+               </tr>
+               <tr>
+                 <td>
+                   <table class="table table-striped table-hover table-condensed">
+                      <thead>
+                         <tr>
+                            <th>Field name</th>
+                            <th>Type</th>
+                            <th>Icon</th>
+                         </tr>
+                      </thead>
+                      <tbody>
+                         <tr ng-repeat="item in risk.fields">
+                            <td>{{item.fieldName}}</td>
+                            <td>{{item.fieldType}}</td>
+                            <td><img src="svg/{{getProperty(item.fieldType)}}"  class="smallImg"></td>
+                         </tr>
+                      </tbody>
+                   </table>
+                 </td>
+                 <td>
+                 </td>
+               </tr>
+               <tr>
+                 <td>
+                   <button class="btn btn-primary"
+                     ng-disabled="newField.fieldName == '' || newField.fieldType == '' "
+                     ng-click="addField()">Add field</button>
+                 </td>
+                 <td>
+                 </td>
+               </tr>
+             </table>
+
+             <br/>
+
+
+             <div class="panel-body">
+                <div class="alert alert-{{notificationType}}" role="alert" ng-show="notify">
+                   {{message}}
+                </div>
+             </div>
+           </div>
+         </td>
+
+         <!--
+          This is the table which fetch the data from AWS
+
+         -->
+         <td class="topAlign">
+           <div ng-controller="riskDataController">
+               <button class="btn btn-primary"
+                 ng-click="loadData()">Refresh
+                 <img src="svg/refresh.svg"  class="smallImg">
+               </button>
+              <table class="table table-striped table-hover table-condensed" style="width: 800px">
+                 <thead>
+                    <tr>
+                       <th>Risk name</th>
+                       <th>Fields</th>
+                       <th>Operation</th>
+                    </tr>
+                 </thead>
+                 <tbody>
+                    <tr ng-repeat="item in riskData">
+                       <td>{{item.riskName}}</td>
+                       <td>
+                          <ul class="list-group">
+                             <li ng-repeat="field in item.fields" class="list-group-item">
+                                <img src="svg/{{getProperty(field.fieldType)}}" class="smallImg">
+                                {{field.fieldName}}
+                                <div ng-show="field.fieldType == 'enum'">
+                                  {{field.options}}
+                                </div>
+                             </li>
+                          </ul>
+                       </td>
+                       <td>
+                         <img src="svg/print.svg" class="smallImg">
+                         <button type="button"
+                           ng-click="selectRisk(item)"
+                           class="btn btn-info" data-toggle="modal" data-target="#myModal">Open form</button>
+                       </td>
+                    </tr>
+                 </tbody>
+              </table>
+
+
+              <!-- Modal -->
+              <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4>{{riskSelected.code}}-{{riskSelected.riskName}}</h4>
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+                      <table class="table table-striped table-hover table-condensed">
+                        <tr ng-repeat="field in riskSelected.fields">
+                          <td>{{field.fieldName}}</td>
+                          <td ng-if="field.fieldType == 'enum'">
+                            <!-- if it is a enum -->
+                            <select class="form-control selectpicker">
+                               <option ng-repeat="item in field.options">{{item}}</option>
+                            </select>
+                          </td>
+                          <td ng-if="field.fieldType != 'enum'">
+                            <!-- if it is not a enum -->
+                            <input type="{{field.fieldType}}" class="form-control" id="riskName">
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+           </div>
+         </td>
+       </tr>
+     </table>
+   </body>
+</html>

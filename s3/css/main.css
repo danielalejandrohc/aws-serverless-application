@@ -1,0 +1,21 @@
+.smallImg {
+  witdth: 25px;
+  height: 25px;
+}
+
+.topAlign {
+  vertical-align: top;
+  padding-left: 15px;
+}
+
+.genericBackground {
+  background-color: white;
+}
+
+h4 {
+  color: blue;
+  font-size: 48px;
+  font-family: 'Signika',
+  sans-serif;
+  padding-bottom: 10px;
+}
