@@ -10,23 +10,30 @@ def lambda_handler(event, context):
     table = dynamodb.Table('generic-entities')
     response = None
 
-    code = ' '
+    code = ''
 
     if 'queryStringParameters' in event:
         logging.info('looking at queryStringParameters {}'.format(event['queryStringParameters']))
         method = event['httpMethod']
 
         if method == 'GET':
-            # Read data from database
-            response = table.scan(
-                Select="ALL_ATTRIBUTES",
-            )
-            # Read specific code of entity
             try:
-                if 'code' in event['queryStringParameters']:
-                    code = event['queryStringParameters']['code']
-            except:
+                if 'pathParameters' in event:
+                    code = event['pathParameters']['code']
+            except Exception as e:
                 code = ''
+
+            if code == '':
+                # Read data from database
+                response = table.scan(
+                    Select="ALL_ATTRIBUTES",
+                )
+            else:
+                response = table.get_item(
+                    Key={
+                        'code': code
+                    }
+                )
 
         if method == 'PUT':
             # Create object based on the payload

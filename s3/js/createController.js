@@ -69,6 +69,7 @@
     // Method invoked when adding a new field to a risk
     $scope.addOption = function() {
       $scope.newField.options.push($scope.option);
+      $scope.option = ""
       $scope.$apply()
     }
 
